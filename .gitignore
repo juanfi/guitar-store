@@ -1,0 +1,10 @@
+/guitar-store.iml
+
+dist/*
+target/
+
+# editor project files
+.idea/
+
+.DS_Store
+tmp/
