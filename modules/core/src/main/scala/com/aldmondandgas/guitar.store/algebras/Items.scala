@@ -1,7 +1,7 @@
 package com.aldmondandgas.guitar.store.algebras
 
-import com.aldmondandgas.guitar.store.entities.{
-  BrandName,
+import com.aldmondandgas.guitar.store.entities.brand.BrandName
+import com.aldmondandgas.guitar.store.entities.item.{
   CreateItem,
   Item,
   ItemId,

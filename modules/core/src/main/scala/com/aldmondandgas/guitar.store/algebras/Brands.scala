@@ -1,5 +1,5 @@
 package com.aldmondandgas.guitar.store.algebras
-import com.aldmondandgas.guitar.store.entities.{Brand, BrandName}
+import com.aldmondandgas.guitar.store.entities.brand.{Brand, BrandName}
 
 trait Brands[F[_]] {
   def findAll: F[List[Brand]]

@@ -1,11 +1,8 @@
 package com.aldmondandgas.guitar.store.algebras
-import com.aldmondandgas.guitar.store.entities.{
-  CartItem,
-  Order,
-  OrderId,
-  PaymentId,
-  UserId
-}
+
+import com.aldmondandgas.guitar.store.entities.auth.UserId
+import com.aldmondandgas.guitar.store.entities.cart.CartItem
+import com.aldmondandgas.guitar.store.entities.order.{Order, OrderId, PaymentId}
 import squants.market.Money
 
 trait Orders[F[_]] {

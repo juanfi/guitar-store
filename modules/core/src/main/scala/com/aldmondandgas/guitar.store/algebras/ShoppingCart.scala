@@ -1,11 +1,8 @@
 package com.aldmondandgas.guitar.store.algebras
-import com.aldmondandgas.guitar.store.entities.{
-  Cart,
-  CartTotal,
-  ItemId,
-  Quantity,
-  UserId
-}
+
+import com.aldmondandgas.guitar.store.entities.auth.UserId
+import com.aldmondandgas.guitar.store.entities.cart.{Cart, CartTotal, Quantity}
+import com.aldmondandgas.guitar.store.entities.item.ItemId
 
 trait ShoppingCart[F[_]] {
   def add(userId: UserId, itemId: ItemId, quantity: Quantity): F[Unit]

@@ -1,5 +1,6 @@
 package com.aldmondandgas.guitar.store.algebras
-import com.aldmondandgas.guitar.store.entities.{
+
+import com.aldmondandgas.guitar.store.entities.auth.{
   JwtToken,
   Password,
   User,

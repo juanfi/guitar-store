@@ -1,3 +1,5 @@
 package com.aldmondandgas.guitar.store.entities
 
-final case class Card()
+object card {
+  final case class Card()
+}
