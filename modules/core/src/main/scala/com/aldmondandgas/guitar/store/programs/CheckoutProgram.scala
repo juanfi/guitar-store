@@ -1,39 +1,37 @@
 package com.aldmondandgas.guitar.store.programs
 
-import cats.MonadError
-import com.aldmondandgas.guitar.store.effects.Background
-import com.aldmondandgas.guitar.store.entities.auth.UserId
-import com.aldmondandgas.guitar.store.entities.card.Card
-import com.aldmondandgas.guitar.store.entities.cart.CartItem
-import com.aldmondandgas.guitar.store.entities.order.{ OrderError, OrderId, PaymentError, PaymentId }
-import com.aldmondandgas.guitar.store.entities.payment.Payment
-import io.chrisdavenport.log4cats.Logger
-//import javafx.scene.layout.Background
-import squants.market.Money
-//import cats.implicits._
+import cats.effect.Timer
 import cats.syntax.applicativeError._
 import cats.syntax.apply._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
-import cats.syntax.semigroup._
+import cats.syntax.monadError._
 import com.aldmondandgas.guitar.store.algebras.{ Orders, PaymentClient, ShoppingCart }
+import com.aldmondandgas.guitar.store.effects.{ Background, MonadThrow }
+import com.aldmondandgas.guitar.store.entities.auth.UserId
+import com.aldmondandgas.guitar.store.entities.card.Card
+import com.aldmondandgas.guitar.store.entities.cart.{ CartItem, CartTotal }
+import com.aldmondandgas.guitar.store.entities.order._
+import com.aldmondandgas.guitar.store.entities.payment.Payment
+import io.chrisdavenport.log4cats.Logger
 import retry.RetryDetails._
-import retry.RetryPolicies._
 import retry._
+import squants.market.Money
 
 import scala.concurrent.duration._
 
-final class CheckoutProgram[F[_]: MonadError[F, Throwable]: Logger: Background](
+final class CheckoutProgram[F[_]: Background: Logger: MonadThrow: Timer](
     paymentClient: PaymentClient[F],
     shoppingCart: ShoppingCart[F],
-    orders: Orders[F]
+    orders: Orders[F],
+    retryPolicy: RetryPolicy[F]
 ) {
 
-  val retryPolicy = limitRetries[F](3) |+| exponentialBackoff[F](10.milliseconds)
+//  val retryPolicy = limitRetries[F](3) |+| exponentialBackoff[F](10.milliseconds)
 
   def logError(action: String)(e: Throwable, details: RetryDetails): F[Unit] = details match {
-    case r: WillDelayAndRetry => Logger[F].error(s"Failed on $action. We retried ${r.retriesSoFar} times.")
-    case g: GivingUp          => Logger[F].error(s"Giving up on $action after ${g.totalRetries} retries.")
+    case r: WillDelayAndRetry => Logger[F].error(e)(s"Failed on $action. We retried ${r.retriesSoFar} times.")
+    case g: GivingUp          => Logger[F].error(e)(s"Giving up on $action after ${g.totalRetries} retries.")
   }
 
   def processPayment(payment: Payment): F[PaymentId] = {
@@ -65,11 +63,16 @@ final class CheckoutProgram[F[_]: MonadError[F, Throwable]: Logger: Background](
   }
 
   def checkout(userId: UserId, card: Card): F[OrderId] =
-    for {
-      cart <- shoppingCart.get(userId)
-      paymentId <- paymentClient.process(Payment(userId, cart.total, card))
-      orderId <- orders.create(userId, paymentId, cart.items, cart.total)
-      _ <- shoppingCart.delete(userId).attempt.void
-    } yield orderId
+    shoppingCart
+      .get(userId)
+      .ensure(EmptyCartError)(_.items.nonEmpty)
+      .flatMap {
+        case CartTotal(items, total) =>
+          for {
+            paymentId <- processPayment(Payment(userId, total, card))
+            order <- createOrder(userId, paymentId, items, total)
+            _ <- shoppingCart.delete(userId).attempt.void
+          } yield order
+      }
 
 }

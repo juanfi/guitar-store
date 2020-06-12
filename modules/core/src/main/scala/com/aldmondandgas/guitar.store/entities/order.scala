@@ -16,4 +16,5 @@ object order {
 
   final case class OrderError(cause: String) extends NoStackTrace
   final case class PaymentError(cause: String) extends NoStackTrace
+  case object EmptyCartError extends NoStackTrace
 }
