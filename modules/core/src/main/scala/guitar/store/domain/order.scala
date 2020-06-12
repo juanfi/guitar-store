@@ -1,8 +1,10 @@
-package com.aldmondandgas.guitar.store.entities
+package guitar.store.domain
+
 import java.util.UUID
 
-import com.aldmondandgas.guitar.store.entities.cart.Quantity
-import com.aldmondandgas.guitar.store.entities.item.ItemId
+import guitar.store.domain.cart.Quantity
+import guitar.store.domain.item.ItemId
+import guitar.store.domain.cart.Quantity
 import io.estatico.newtype.macros.newtype
 import squants.market.Money
 

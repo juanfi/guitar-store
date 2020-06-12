@@ -1,4 +1,4 @@
-package com.aldmondandgas.guitar.store.programs
+package guitar.store.programs
 
 import cats.effect.Timer
 import cats.syntax.applicativeError._
@@ -6,13 +6,20 @@ import cats.syntax.apply._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.syntax.monadError._
-import com.aldmondandgas.guitar.store.algebras.{ Orders, PaymentClient, ShoppingCart }
-import com.aldmondandgas.guitar.store.effects.{ Background, MonadThrow }
-import com.aldmondandgas.guitar.store.entities.auth.UserId
-import com.aldmondandgas.guitar.store.entities.card.Card
-import com.aldmondandgas.guitar.store.entities.cart.{ CartItem, CartTotal }
-import com.aldmondandgas.guitar.store.entities.order._
-import com.aldmondandgas.guitar.store.entities.payment.Payment
+import guitar.store.algebras.{ Orders, PaymentClient, ShoppingCart }
+import guitar.store.effects.{ Background, MonadThrow }
+import guitar.store.domain.auth.UserId
+import guitar.store.domain.card.Card
+import guitar.store.domain.cart.{ CartItem, CartTotal }
+import guitar.store.domain.order._
+import guitar.store.domain.payment.Payment
+import guitar.store.algebras.{ Orders, PaymentClient }
+import guitar.store.effects.Background
+import guitar.store.domain.auth.UserId
+import guitar.store.domain.card.Card
+import guitar.store.domain.cart.CartItem
+import guitar.store.domain.order.{ EmptyCartError, OrderId, PaymentId }
+import guitar.store.domain.payment.Payment
 import io.chrisdavenport.log4cats.Logger
 import retry.RetryDetails._
 import retry._
@@ -46,7 +53,10 @@ final class CheckoutProgram[F[_]: Background: Logger: MonadThrow: Timer](
   }
 
   def createOrder(userId: UserId, paymentId: PaymentId, items: List[CartItem], total: Money): F[OrderId] = {
-    val action = retryingOnAllErrors[OrderId](policy = retryPolicy, onError = logError("Order"))(
+    val action = retryingOnAllErrors[OrderId](
+      policy = retryPolicy,
+      onError = logError("Order")
+    )(
       orders.create(userId, paymentId, items, total)
     )
 

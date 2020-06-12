@@ -1,4 +1,4 @@
-package com.aldmondandgas.guitar.store.entities
+package guitar.store.domain
 
 import java.util.UUID
 

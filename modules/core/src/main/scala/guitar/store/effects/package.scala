@@ -1,4 +1,5 @@
-package com.aldmondandgas.guitar.store
+package guitar.store
+
 import cats.MonadError
 
 package object effects {

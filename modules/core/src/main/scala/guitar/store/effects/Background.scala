@@ -1,4 +1,4 @@
-package com.aldmondandgas.guitar.store.effects
+package guitar.store.effects
 
 import cats.effect.implicits._
 import cats.effect.{ Concurrent, Timer }
