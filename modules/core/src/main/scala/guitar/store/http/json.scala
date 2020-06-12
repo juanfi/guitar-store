@@ -2,7 +2,6 @@ package guitar.store.http
 
 import cats.Applicative
 import dev.profunktor.auth.jwt.JwtToken
-import guitar.store.domain.auth.User
 import guitar.store.domain.brand.{ Brand, BrandParam }
 import guitar.store.domain.card.Card
 import guitar.store.domain.cart.{ Cart, CartItem, CartTotal }
@@ -10,6 +9,7 @@ import guitar.store.domain.category.Category
 import guitar.store.domain.item.Item
 import guitar.store.domain.order.Order
 import guitar.store.domain.payment.Payment
+import guitar.store.http.auth.users.User
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.refined._
